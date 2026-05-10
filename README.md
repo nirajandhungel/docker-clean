@@ -70,21 +70,35 @@ Should show:
 No containers
 ```
 
-1️⃣ Seed the Admin User
-Run this command. You can change the password to whatever you want:
+---
 
-bash
-ADMIN_SEED_PASSWORD="YourSecurePassword123" \
-docker compose -f infrastructure/docker-compose.vps.yml run --rm admin-api \
-node apps/api-admin/dist/scripts/seed-admin.js
-2️⃣ Seed the App Config
-This initializes your application settings:
+## 🚀 DEPLOY
 
-bash
-docker compose -f infrastructure/docker-compose.vps.yml run --rm admin-api \
-node apps/api-admin/dist/scripts/seed-config.js
-3️⃣ Verify the Database (Optional)
-If you want to see the new admin user in the database:
+```bash
+git pull
+pnpm vps:up
+```
 
-bash
-docker exec -it futsmandu-db psql -U futsmandu -d futsmandu -c "SELECT email, role, is_active FROM admins;"
+---
+
+## ✅ 1. Prisma DB Sync (migrate / push)
+
+```bash
+docker compose --env-file .env -f infrastructure/docker-compose.vps.yml run --rm migrate \
+  npx prisma db push --schema=packages/database/prisma/schema.prisma --accept-data-loss
+```
+
+## ✅ 2. Seed Admin User
+
+```bash
+docker compose --env-file .env -f infrastructure/docker-compose.vps.yml run --rm \
+  admin-api node apps/api-admin/dist/scripts/seed-admin.js
+```
+
+## ✅ 3. Seed Config (IMPORTANT: needs volume mount)
+
+```bash
+docker compose --env-file .env -f infrastructure/docker-compose.vps.yml run --rm \
+  -v $(pwd)/seed-config.local.json:/seed-config.local.json \
+  admin-api node apps/api-admin/dist/scripts/seed-config.js
+```
