@@ -1,3 +1,13 @@
+# Safe Clean-weekly after majoe deployment 
+
+```bash
+docker container prune -f
+docker builder prune -a -f
+docker image prune -f
+```
+
+
+
 # 🧨 FULL VPS DOCKER WIPE (safe order)
 
 Run these step by step:
